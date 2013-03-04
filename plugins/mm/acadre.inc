@@ -203,7 +203,7 @@ function _os2web_acadre_esdh_import_meeting($info) {
   }
   else {
     // Requested file not found.
-    watchdog('acadre MM', 'Failed to read agenda manifest file %uri', array('%uri' => $agenda_uri), WATCHDOG_WARNING);
+    watchdog('acadre MM', 'Failed to read agenda manifest file %uri', array('%uri' => $info['agenda_uri']), WATCHDOG_WARNING);
   }
   return FALSE;
 }
@@ -235,8 +235,9 @@ function _os2web_acadre_esdh_import_item($info, $xml) {
     foreach ($xml->xpath("table[@name='bullet']") as $bullet_xml) {
       if (($bullet = _os2web_acadre_esdh_import_bullet($info, $bullet_xml)) !== FALSE) {
         if (is_int($bullet['sort']) && $bullet['sort'] > 0) {
-          $item['bullets'][$bullet['sort'] -1] = $bullet;
-        } else {
+          $item['bullets'][$bullet['sort'] - 1] = $bullet;
+        }
+        else {
           $item['bullets'][] = $bullet;
         }
       }

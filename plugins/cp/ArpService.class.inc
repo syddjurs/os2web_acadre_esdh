@@ -2,7 +2,7 @@
 
 /**
  * @file
- *   The Class which implements the ARP service.
+ * The Class which implements the ARP service.
  *
  * @author Jesper Mathiassen <jm@bellcom.dk>
  * @copyright Bellcom Open Source aps.
@@ -41,6 +41,9 @@ class TraenPublishingDestinationSystemService {
     self::echoFile($filename);
   }
 
+  /**
+   * Echoes specified file.
+   */
   private static function echoFile($filename) {
     $filename = drupal_get_path('module', 'acadre_esdh') . '/' . $filename;
     if (!file_exists($filename)) {
@@ -61,28 +64,28 @@ class TraenPublishingDestinationSystemService {
     exit;
   }
 
-  //*********** PUBLIC API ***************//
-
+  // *********** PUBLIC API ***************//
   public function RecievedEntityLayout($data) {
     error_log(basename(__FILE__) . ':' . __LINE__ . ' Var: $data = ' . print_r($data, 1));
-    return false;
+    return FALSE;
   }
 
   public function RecievedItemUnPublished($data) {
     error_log(basename(__FILE__) . ':' . __LINE__ . ' Var: $data = ' . print_r($data, 1));
-    return false;
+    return FALSE;
   }
 
   public function RecievedConfiguration($data) {
-    $function = 'os2web_cs_service_alter_configuration'; // Function used to handle the configuration
+    // Function used to handle the configuration.
+    $function = 'os2web_cs_service_alter_configuration';
     if (function_exists($function)) {
       foreach ($data as $configuration_key => $value) {
-        if(!empty($value)){
+        if (!empty($value)) {
           call_user_func($function, $configuration_key, $value);
         }
       }
     }
-    return true;
+    return TRUE;
   }
 
   public function RecievedItemPublished($data) {
@@ -90,9 +93,11 @@ class TraenPublishingDestinationSystemService {
       case 'sag':
         $type = 'case';
         break;
+
       case 'dokument':
         $type = 'document';
         break;
+
       default:
         $type = 'unknown';
     }
