@@ -5,6 +5,11 @@ core = 7.x
 
 ; OS2Web Modules
 
+projects[os2web][type] = "module"
+projects[os2web][download][type] = "git"
+projects[os2web][download][branch] = "master"
+projects[os2web][download][url] = "git://github.com/OS2web/os2web.git"
+
 # projects[os2web_adlib_api][type] = "module"
 # projects[os2web_adlib_api][download][type] = "git"
 # projects[os2web_adlib_api][download][branch] = "master"
