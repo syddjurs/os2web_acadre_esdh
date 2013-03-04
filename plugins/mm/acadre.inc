@@ -21,7 +21,7 @@ $plugin = array(
   'test' => 'os2web_acadre_esdh_mm_test',
   'get_import_list' => 'os2web_acadre_esdh_mm_get_import_list',
   'import_meeting' => 'os2web_acadre_esdh_mm_import_meeting',
-  'post_import_process' => '_acadre_esdh_mm_order_addenums',
+  'post_import_process' => '_os2web_acadre_esdh_mm_order_addenums',
 );
 
 /**
