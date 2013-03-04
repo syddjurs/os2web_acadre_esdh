@@ -13,7 +13,7 @@ define('ACADRE_MM_DEFAULT_APPROVED', '62,59,64,53,54,56,57,63,58,51,55,61,68,69,
  *
  * Register as provider of esdh plugins
  */
-function acadre_esdh_ctools_plugin_directory($module, $plugin) {
+function os2web_acadre_esdh_ctools_plugin_directory($module, $plugin) {
   if ($module == 'os2web_esdh_provider') {
     return "plugins/$plugin";
   }
@@ -24,7 +24,7 @@ function acadre_esdh_ctools_plugin_directory($module, $plugin) {
  *
  * Add configuration to the settings form.
  */
-function acadre_esdh_form_os2web_settings_settings_form_alter(&$form, &$form_state) {
+function os2web_acadre_esdh_form_os2web_settings_settings_form_alter(&$form, &$form_state) {
   // MM configuration.
   $form['meetings'] = array(
     '#type' => 'fieldset',

@@ -6,6 +6,7 @@ core = 7.x
 version = "7.x-0.1"
 
 dependencies[] = os2web_esdh_provider
+dependencies[] = os2web_adlib_api
 dependencies[] = ctools
 
 files[] = plugins/cm/acadre.inc

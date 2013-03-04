@@ -18,16 +18,16 @@ define('ACADRE_MM_ACCESS_PERSON', 3);
 $plugin = array(
   'description' => t('Acadre ESDH MM Backend'),
   'version' => 1,
-  'test' => 'acadre_esdh_mm_test',
-  'get_import_list' => 'acadre_esdh_mm_get_import_list',
-  'import_meeting' => 'acadre_esdh_mm_import_meeting',
+  'test' => 'os2web_acadre_esdh_mm_test',
+  'get_import_list' => 'os2web_acadre_esdh_mm_get_import_list',
+  'import_meeting' => 'os2web_acadre_esdh_mm_import_meeting',
   'post_import_process' => '_acadre_esdh_mm_order_addenums',
 );
 
 /**
  * For plugin testing purposes.
  */
-function acadre_esdh_mm_test($stuff) {
+function os2web_acadre_esdh_mm_test($stuff) {
   return 'Test successful. Recieved: ' . $stuff;
 }
 
@@ -37,7 +37,7 @@ function acadre_esdh_mm_test($stuff) {
  * @return array
  *   List of URIs
  */
-function acadre_esdh_mm_get_import_list() {
+function os2web_acadre_esdh_mm_get_import_list() {
   /*
    * For the acadre service, we need to miport meetings from xml files.
    * We will enumerate the list with the publication-id as parsed from the filename.
@@ -72,7 +72,7 @@ function acadre_esdh_mm_get_import_list() {
  * @return array
  *   List of meeting_structures to save
  */
-function acadre_esdh_mm_import_meeting($meeting) {
+function os2web_acadre_esdh_mm_import_meeting($meeting) {
   $file = $meeting['uri'];
   if ($file === FALSE) {
     os2web_meetings_order_addenums();
@@ -105,7 +105,7 @@ function acadre_esdh_mm_import_meeting($meeting) {
             $agendainfo['filesfolder'],
             $agendainfo['xmlfilename']));
           $agendainfo['agenda_uri'] = $agenda_uri;
-          $imported = _acadre_esdh_import_meeting($agendainfo);
+          $imported = _os2web_acadre_esdh_import_meeting($agendainfo);
           if (is_array($imported)) {
             $imported['publish'] = TRUE;
             $meetings[] = $imported;
@@ -136,8 +136,8 @@ function acadre_esdh_mm_import_meeting($meeting) {
  * @return mixed
  *   Meeting_struct array for an accepted import, else FALSE
  */
-function _acadre_esdh_import_meeting($info) {
-  if (($real_path = _acadre_esdh_similar_file_exists(drupal_realpath($info['agenda_uri']))) !== FALSE) {
+function _os2web_acadre_esdh_import_meeting($info) {
+  if (($real_path = _os2web_acadre_esdh_similar_file_exists(drupal_realpath($info['agenda_uri']))) !== FALSE) {
     $xml = simplexml_load_file($real_path);
     $meeting = array(
       'title' => (string) array_shift($xml->xpath("//table[@name='meeting']/fields/field[@name='name']")),
@@ -193,7 +193,7 @@ function _acadre_esdh_import_meeting($info) {
 
     foreach ($xml->xpath("//table[@name='agendaitemparents']") as $item_xml) {
       $item_content_xml = array_shift($item_xml->xpath("table[@name='agendaitem']"));
-      if (($item = _acadre_esdh_import_item($info, $item_content_xml)) !== FALSE) {
+      if (($item = _os2web_acadre_esdh_import_item($info, $item_content_xml)) !== FALSE) {
         $meeting['items'][] = $item;
       }
     }
@@ -219,7 +219,7 @@ function _acadre_esdh_import_meeting($info) {
  * @return array
  *   The imported item.
  */
-function _acadre_esdh_import_item($info, $xml) {
+function _os2web_acadre_esdh_import_item($info, $xml) {
   $id = (int) array_shift($xml->xpath("../fields/field[@name='sort']"));
   $name = (string) array_shift($xml->xpath("fields/field[@name='name']"));
   $item = array(
@@ -233,7 +233,7 @@ function _acadre_esdh_import_item($info, $xml) {
   if ($item['access'] !== 'Lukket') {
     // Process attachments.
     foreach ($xml->xpath("table[@name='bullet']") as $bullet_xml) {
-      if (($bullet = _acadre_esdh_import_bullet($info, $bullet_xml)) !== FALSE) {
+      if (($bullet = _os2web_acadre_esdh_import_bullet($info, $bullet_xml)) !== FALSE) {
         if (is_int($bullet['sort']) && $bullet['sort'] > 0) {
           $item['bullets'][$bullet['sort'] -1] = $bullet;
         } else {
@@ -271,7 +271,7 @@ function _acadre_esdh_import_item($info, $xml) {
  * @return array
  *   The imported bullet.
  */
-function _acadre_esdh_import_bullet($info, $bullet_xml) {
+function _os2web_acadre_esdh_import_bullet($info, $bullet_xml) {
   $bullet = array(
     'title' => (string) array_shift($bullet_xml->xpath("fields/field[@name='bulletname']")),
     'body' => (string) array_shift($bullet_xml->xpath("fields/field[@name='bulletcontent']")),
@@ -293,7 +293,7 @@ function _acadre_esdh_import_bullet($info, $bullet_xml) {
  * @return mixed
  *   False if file not found, case corrected filename if found.
  */
-function _acadre_esdh_similar_file_exists($filename) {
+function _os2web_acadre_esdh_similar_file_exists($filename) {
   if (file_exists($filename)) {
     return $filename;
   }
@@ -310,7 +310,7 @@ function _acadre_esdh_similar_file_exists($filename) {
  * This function will set up the addenum connections for meetings.
  * @TODO: Rid this of drupal specific code.
  */
-function _acadre_esdh_mm_order_addenums($drush = FALSE) {
+function _os2web_acadre_esdh_mm_order_addenums($drush = FALSE) {
   if (!lock_acquire(__FUNCTION__)) {
     return;
   }
