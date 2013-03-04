@@ -8,9 +8,9 @@ to Acadre
 
 Dependencies
 -----------
-os2web_esdh_provider
-os2web_adlib_api
-ctools
+- os2web_esdh_provider
+- os2web_adlib_api
+- ctools
 
 Installation
 -----------
