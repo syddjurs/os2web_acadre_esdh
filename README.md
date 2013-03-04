@@ -14,11 +14,13 @@ ctools
 
 Installation
 -----------
-These modules should reside in the modules directory of the installation,
+This module should reside in the modules directory of the installation,
 most commonly profiles/os2web/modules/, but alternativly in sites/all/modules
 (This could be for development purposes).
 
 See https://github.com/syddjurs/os2web/wiki for further instructions.
+
+This module can also be installed with drush make in your install profile.
 
 Licence and copyright
 ---------------------
