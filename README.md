@@ -4,7 +4,7 @@ OS2Web Acadre ESDH
 Description
 -----------
 This module provides a service for OS2web that allows communication
-to Acadre
+to Acadre.
 
 Dependencies
 -----------
