@@ -45,7 +45,7 @@ class TraenPublishingDestinationSystemService {
    * Echoes specified file.
    */
   private static function echoFile($filename) {
-    $filename = drupal_get_path('module', 'acadre_esdh') . '/' . $filename;
+    $filename = drupal_get_path('module', 'os2web_acadre_esdh') . '/' . $filename;
     if (!file_exists($filename)) {
       drupal_not_found();
     }
@@ -65,6 +65,7 @@ class TraenPublishingDestinationSystemService {
   }
 
   // *********** PUBLIC API ***************//
+
   public function RecievedEntityLayout($data) {
     error_log(basename(__FILE__) . ':' . __LINE__ . ' Var: $data = ' . print_r($data, 1));
     return FALSE;
@@ -135,7 +136,7 @@ class TraenPublishingDestinationSystemService {
   }
 
   public function __call($name, $arguments) {
-    watchdog('acadre_esdh', 'Unsupported request recieved: %req', array('%req' => $name), WATCHDOG_NOTICE);
+    watchdog('os2web_acadre_esdh', 'Unsupported request recieved: %req', array('%req' => $name), WATCHDOG_NOTICE);
     error_log(basename(__FILE__) . ':' . __LINE__ . " Unsupported request recieved: $name");
   }
 
