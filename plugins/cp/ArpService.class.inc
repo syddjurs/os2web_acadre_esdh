@@ -71,7 +71,12 @@ class TraenPublishingDestinationSystemService {
   }
 
   public function RecievedItemUnPublished($data) {
-    error_log(basename(__FILE__) . ':' . __LINE__ . ' Var: $data = ' . print_r($data, 1));
+    if (isset($data->Key->Field->Value)) {
+      $function = 'os2web_cp_service_delete';
+      if (function_exists($function)) {
+        return call_user_func($function, $data->Key->Field->Value);
+      }
+    }
     return FALSE;
   }
 
@@ -109,6 +114,12 @@ class TraenPublishingDestinationSystemService {
           $publication['fields'][$field->Name] = $field->Value;
         }
       }
+
+      $field = $data->Key->Field;
+      if (trim($field->Value) && trim($field->Name)) {
+        $publication['fields'][$field->Name] = $field->Value;
+      }
+
       foreach ($data->TriggerRules as $rule) {
         if (trim($rule->ID) && trim($rule->Name)) {
           $publication['rules'][$rule->ID] = $rule->Name;

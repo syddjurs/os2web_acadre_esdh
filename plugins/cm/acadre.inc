@@ -207,6 +207,6 @@ function _ops2web_acadre_esdh_get_pws_instance() {
   if (is_object($obj)) {
     return $obj;
   }
-  module_load_include('inc', 'ops2web_acadre_esdh', 'AcadrePWS.class');
+  module_load_include('inc', 'os2web_acadre_esdh', 'AcadrePWS.class');
   return $obj = new AcadrePWS();
 }

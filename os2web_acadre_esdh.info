@@ -16,6 +16,7 @@ files[] = plugins/cp/TraenPublishingDestinationSystemService.xsd
 files[] = plugins/cp/TraenPublishingDestinationSystemService1.xsd
 files[] = plugins/cp/TraenPublishingDestinationSystemService2.xsd
 files[] = plugins/mm/acadre.inc
+files[] = AcadrePWS.class.inc
 
 ;Added by OS2Web 2012-10-15
 project=OS2Web
