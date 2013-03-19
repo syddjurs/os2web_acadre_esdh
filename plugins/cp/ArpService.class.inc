@@ -121,13 +121,24 @@ class TraenPublishingDestinationSystemService {
         $publication['fields'][$field->Name] = $field->Value;
       }
 
-      foreach ($data->TriggerRules as $rule) {
-        if (trim($rule->ID) && trim($rule->Name)) {
+      // If there only are ONE rule, xml will not return an array.
+      if (!is_array($data->TriggerRules)) {
+        $rule = $data->TriggerRules->TriggerRule;
+        if ($rule->ID && trim($rule->Name)) {
           $publication['rules'][$rule->ID] = $rule->Name;
         }
       }
+      else {
+        foreach ($data->TriggerRules as $rule) {
+          if (trim($rule->ID) && trim($rule->Name)) {
+            $publication['rules'][$rule->ID] = $rule->Name;
+          }
+        }
+      }
+
       $publication['type'] = $type;
       $publication['status'] = $data->Status;
+
       return (bool) call_user_func($function, $publication);
     }
     else {
