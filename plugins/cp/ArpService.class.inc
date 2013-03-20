@@ -125,13 +125,19 @@ class TraenPublishingDestinationSystemService {
       if (!is_array($data->TriggerRules)) {
         $rule = $data->TriggerRules->TriggerRule;
         if ($rule->ID && trim($rule->Name)) {
-          $publication['rules'][$rule->ID] = $rule->Name;
+          $publication['rules'][$rule->ID] = array(
+            'name' => $rule->Name,
+            'tag' => $rule->Tag,
+          );
         }
       }
       else {
         foreach ($data->TriggerRules as $rule) {
-          if (trim($rule->ID) && trim($rule->Name)) {
-            $publication['rules'][$rule->ID] = $rule->Name;
+          if (trim($rule->ID) && trim($rule->Name) && trim($rule->Tag)) {
+            $publication['rules'][$rule->ID] = array(
+              'name' => $rule->Name,
+              'tag' => $rule->Tag,
+            );
           }
         }
       }
