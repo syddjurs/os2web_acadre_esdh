@@ -22,5 +22,5 @@ core = 7.x
 ; Contrib modules
 
 ; Basic
-projects[ctools][subdir] = "contrib"
-projects[ctools][version] = "1.2"
+# projects[ctools][subdir] = "contrib"
+# projects[ctools][version] = "1.2"
