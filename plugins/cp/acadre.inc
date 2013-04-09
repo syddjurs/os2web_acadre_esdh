@@ -11,14 +11,14 @@
 $plugin = array(
   'description' => t('Acadre ESDH Case Pushing backend'),
   'version' => 1,
-  'handle_request' => 'ops2web_acadre_esdh_cp_handle_request',
+  'handle_request' => 'os2web_acadre_esdh_cp_handle_request',
 );
 
 /**
  * This functions handles a request on the webservice API.
  */
-function ops2web_acadre_esdh_cp_handle_request() {
-  module_load_include('inc', 'ops2web_acadre_esdh', 'plugins/cp/ArpService.class');
+function os2web_acadre_esdh_cp_handle_request() {
+  module_load_include('inc', 'os2web_acadre_esdh', 'plugins/cp/ArpService.class');
   if (isset($_GET['wsdl'])) {
     TraenPublishingDestinationSystemService::getWSDL($_GET['wsdl']);
   }
@@ -27,7 +27,7 @@ function ops2web_acadre_esdh_cp_handle_request() {
   }
   if (!lock_acquire(__FUNCTION__, 5)) {
     lock_wait(__FUNCTION__);
-    return ops2web_acadre_esdh_cp_handle_request();
+    return os2web_acadre_esdh_cp_handle_request();
   }
 
   global $HTTP_RAW_POST_DATA;
