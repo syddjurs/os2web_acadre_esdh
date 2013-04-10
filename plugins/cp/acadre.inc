@@ -35,10 +35,8 @@ function os2web_acadre_esdh_cp_handle_request() {
   file_unmanaged_save_data($data, 'public://soap/request-' . time() . '-' . uniqid() . '.xml', FILE_EXISTS_REPLACE);
 
   ini_set("soap.wsdl_cache_enabled", "0");
-  $server = new SoapServer(NULL, array(
-        'uri' => 'http://traen.com/Publishing',
-      ));
-  $server->setClass('TraenPublishingDestinationSystemService');
+  $server = new SoapServer('http' . ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . '/' . request_path() . '/?wsdl', array());
+  $server->setObject(new TraenPublishingDestinationSystemService());
   $server->handle();
   lock_release(__FUNCTION__);
 }
