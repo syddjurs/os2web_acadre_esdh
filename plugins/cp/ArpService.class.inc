@@ -149,7 +149,7 @@ class TraenPublishingDestinationSystemService {
       return array('RecievedItemPublishedResult' => (bool) call_user_func($function, $publication));
     }
     else {
-      return FALSE;
+      return array('RecievedItemPublishedResult' => FALSE);
     }
   }
 
