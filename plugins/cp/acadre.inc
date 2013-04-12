@@ -34,9 +34,13 @@ function os2web_acadre_esdh_cp_handle_request() {
   $data = $HTTP_RAW_POST_DATA;
   file_unmanaged_save_data($data, 'public://soap/request-' . time() . '-' . uniqid() . '.xml', FILE_EXISTS_REPLACE);
 
+  timer_start('cp');
+
   ini_set("soap.wsdl_cache_enabled", "0");
   $server = new SoapServer('http' . ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . '/' . request_path() . '/?wsdl', array());
   $server->setObject(new TraenPublishingDestinationSystemService());
   $server->handle();
   lock_release(__FUNCTION__);
+  watchdog('os2web_cp_service', 'CP ws DONE: %time', array('%time' => timer_read('cp')), WATCHDOG_NOTICE);
+  timer_stop('cp');
 }
