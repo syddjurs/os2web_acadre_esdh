@@ -11,14 +11,14 @@
 $plugin = array(
   'description' => t('Acadre ESDH Case Pushing backend'),
   'version' => 1,
-  'handle_request' => 'ops2web_acadre_esdh_cp_handle_request',
+  'handle_request' => 'os2web_acadre_esdh_cp_handle_request',
 );
 
 /**
  * This functions handles a request on the webservice API.
  */
-function ops2web_acadre_esdh_cp_handle_request() {
-  module_load_include('inc', 'ops2web_acadre_esdh', 'plugins/cp/ArpService.class');
+function os2web_acadre_esdh_cp_handle_request() {
+  module_load_include('inc', 'os2web_acadre_esdh', 'plugins/cp/ArpService.class');
   if (isset($_GET['wsdl'])) {
     TraenPublishingDestinationSystemService::getWSDL($_GET['wsdl']);
   }
@@ -27,18 +27,20 @@ function ops2web_acadre_esdh_cp_handle_request() {
   }
   if (!lock_acquire(__FUNCTION__, 5)) {
     lock_wait(__FUNCTION__);
-    return ops2web_acadre_esdh_cp_handle_request();
+    return os2web_acadre_esdh_cp_handle_request();
   }
 
   global $HTTP_RAW_POST_DATA;
   $data = $HTTP_RAW_POST_DATA;
   file_unmanaged_save_data($data, 'public://soap/request-' . time() . '-' . uniqid() . '.xml', FILE_EXISTS_REPLACE);
 
+  timer_start('cp');
+
   ini_set("soap.wsdl_cache_enabled", "0");
-  $server = new SoapServer(NULL, array(
-        'uri' => 'http://traen.com/Publishing',
-      ));
-  $server->setClass('TraenPublishingDestinationSystemService');
+  $server = new SoapServer('http' . ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . '/' . request_path() . '/?wsdl', array());
+  $server->setObject(new TraenPublishingDestinationSystemService());
   $server->handle();
   lock_release(__FUNCTION__);
+  watchdog('os2web_cp_service', 'CP ws DONE: %time', array('%time' => timer_read('cp')), WATCHDOG_NOTICE);
+  timer_stop('cp');
 }

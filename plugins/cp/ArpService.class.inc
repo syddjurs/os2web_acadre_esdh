@@ -72,18 +72,19 @@ class TraenPublishingDestinationSystemService {
   }
 
   public function RecievedItemUnPublished($data) {
-    if (isset($data->Key->Field->Value)) {
+    $success = FALSE;
+    if (isset($data->entityItem->Key->Field->Value)) {
       $function = 'os2web_cp_service_delete';
       if (function_exists($function)) {
-        return call_user_func($function, $data->Key->Field->Value);
+        $success = call_user_func($function, $data->entityItem->Key->Field->Value);
       }
     }
-    return FALSE;
+    return array('RecievedItemUnPublishedResult' => (bool) $success);
   }
 
   public function RecievedConfiguration($data) {
     // Function used to handle the configuration.
-    $function = 'os2web_cs_service_alter_configuration';
+    $function = 'os2web_cp_service_alter_configuration';
     if (function_exists($function)) {
       foreach ($data as $configuration_key => $value) {
         if (!empty($value)) {
@@ -91,11 +92,11 @@ class TraenPublishingDestinationSystemService {
         }
       }
     }
-    return TRUE;
+    return array('RecievedConfigurationResult' => TRUE);
   }
 
   public function RecievedItemPublished($data) {
-    switch (strtolower($data->EntityName)) {
+    switch (strtolower($data->entityItem->EntityName)) {
       case 'sag':
         $type = 'case';
         break;
@@ -105,25 +106,26 @@ class TraenPublishingDestinationSystemService {
         break;
 
       default:
+        error_log(__FUNCTION__ . ' unknown EntityName');
         $type = 'unknown';
     }
-    $function = 'os2web_cs_service_create_' . $type;
+    $function = 'os2web_cp_service_create_' . $type;
     if (function_exists($function)) {
       $publication = array();
-      foreach ($data->Fields->Field as $field) {
+      foreach ($data->entityItem->Fields->Field as $field) {
         if (trim($field->Value) && trim($field->Name)) {
           $publication['fields'][$field->Name] = $field->Value;
         }
       }
 
-      $field = $data->Key->Field;
+      $field = $data->entityItem->Key->Field;
       if (trim($field->Value) && trim($field->Name)) {
         $publication['fields'][$field->Name] = $field->Value;
       }
 
       // If there only are ONE rule, xml will not return an array.
-      if (!is_array($data->TriggerRules)) {
-        $rule = $data->TriggerRules->TriggerRule;
+      if (!is_array($data->entityItem->TriggerRules)) {
+        $rule = $data->entityItem->TriggerRules->TriggerRule;
         if ($rule->ID && trim($rule->Name)) {
           $publication['rules'][$rule->ID] = array(
             'name' => $rule->Name,
@@ -132,7 +134,7 @@ class TraenPublishingDestinationSystemService {
         }
       }
       else {
-        foreach ($data->TriggerRules as $rule) {
+        foreach ($data->entityItem->TriggerRules as $rule) {
           if (trim($rule->ID) && trim($rule->Name) && trim($rule->Tag)) {
             $publication['rules'][$rule->ID] = array(
               'name' => $rule->Name,
@@ -141,14 +143,13 @@ class TraenPublishingDestinationSystemService {
           }
         }
       }
-
       $publication['type'] = $type;
-      $publication['status'] = $data->Status;
+      $publication['status'] = $data->entityItem->Status;
 
-      return (bool) call_user_func($function, $publication);
+      return array('RecievedItemPublishedResult' => (bool) call_user_func($function, $publication));
     }
     else {
-      return FALSE;
+      return array('RecievedItemPublishedResult' => FALSE);
     }
   }
 
