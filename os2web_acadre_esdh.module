@@ -5,6 +5,8 @@
  * This module implements Acadre ESDH backend for use in os2web
  */
 
+include_once('os2web_acadre_esdh.features.inc');
+
 define('ACADRE_MM_IMPORT_DIR', 'public://acadre');
 define('ACADRE_MM_DEFAULT_APPROVED', '62,59,64,53,54,56,57,63,58,51,55,61,68,69,42');
 
