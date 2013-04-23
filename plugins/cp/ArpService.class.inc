@@ -86,7 +86,7 @@ class TraenPublishingDestinationSystemService {
     // Function used to handle the configuration.
     $function = 'os2web_cp_service_alter_configuration';
     if (function_exists($function)) {
-      foreach ($data as $configuration_key => $value) {
+      foreach ($data->configuration as $configuration_key => $value) {
         if (!empty($value)) {
           call_user_func($function, $configuration_key, $value);
         }
