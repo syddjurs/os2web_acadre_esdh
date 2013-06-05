@@ -118,6 +118,7 @@ function os2web_acadre_esdh_mm_import_meeting($meeting) {
           $imported = _os2web_acadre_esdh_import_meeting($agendainfo);
           if (is_array($imported)) {
             $imported['publish'] = TRUE;
+            $imported['meeting_sub_id'] = (int) array_shift($xml_item->xpath('field/@sysid'));
             $meetings[] = $imported;
           }
         }
@@ -386,7 +387,7 @@ function _os2web_acadre_esdh_mm_order_addenums($drush = FALSE) {
     $meeting_sub_id = array_shift($meeting_sub_id);
     if (isset($meetings[$meeting_id['value']][$meeting_sub_id['value']])) {
       // Duplicate meeting detected.
-      watchdog('os2web_meetings', 'Duplicate import found for meeting %mid. Deleting.', array('%mid' => $meeting_id['value']), WATCHDOG_ERROR);
+      watchdog('acadre MM', 'Duplicate import found for meeting %mid. Deleting nid=%nid.', array('%mid' => $meeting_id['value'], '%nid' => $node->nid), WATCHDOG_WARNING);
       node_delete($node->nid);
     }
     else {
