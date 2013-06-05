@@ -42,6 +42,10 @@ function os2web_acadre_esdh_mm_get_import_list() {
    * For the acadre service, we need to miport meetings from xml files.
    * We will enumerate the list with the publication-id as parsed from the filename.
    */
+
+  // Debug bit set in os2web_esdh_provider settings.
+  $debug = variable_get('os2web_esdh_provider_debug_info');
+
   $uris = array();
   foreach (file_scan_directory(variable_get('os2web_meetings_path', ACADRE_MM_IMPORT_DIR), '/\.xml$/i', array('recurse' => FALSE)) as $xml_file) {
     $pub_id = (int) str_replace('XML_', '', $xml_file->name);
@@ -60,6 +64,8 @@ function os2web_acadre_esdh_mm_get_import_list() {
       );
     }
   }
+
+  $debug && error_log('MM Import - ' . count($uris) . ' uris found.');
   return $uris;
 }
 
@@ -73,6 +79,9 @@ function os2web_acadre_esdh_mm_get_import_list() {
  *   List of meeting_structures to save
  */
 function os2web_acadre_esdh_mm_import_meeting($meeting) {
+  // Debug bit set in os2web_esdh_provider settings.
+  $debug = variable_get('os2web_esdh_provider_debug_info');
+
   $file = $meeting['uri'];
   if ($file === FALSE) {
     os2web_meetings_order_addenums();
@@ -87,6 +96,7 @@ function os2web_acadre_esdh_mm_import_meeting($meeting) {
         watchdog('acadre MM', 'Empty list of import items in %file.', array('%file' => $file), WATCHDOG_WARNING);
       }
       foreach ($items_xml as $xml_item) {
+        $debug && error_log('MM Import - Found meeting ' . $meeting['uri'] . ' - '. timer_read('mm_import') . 'ms');
         $agendainfo = array(
           // 'sysid' => (int) array_shift($xml_item->xpath('field/@sysid')),
           'sysid' => $agenda_id,
@@ -112,6 +122,19 @@ function os2web_acadre_esdh_mm_import_meeting($meeting) {
           }
         }
         else {
+          $message = 'Meeting %id, wasnt allowed to be published from xml %file. [publish]=%publish, [access]=%access, [filesfolder]=%filesfolder';
+          $entries = array(
+            '%id' => $agenda_id,
+            '%publish' => $agendainfo['publish'],
+            '%access' => $agendainfo['access'],
+            '%filesfolder' => $agendainfo['filesfolder'],
+            '%file' => $file,
+          );
+          watchdog('acadre MM', $message, $entries, WATCHDOG_WARNING);
+          if (function_exists('_os2web_esdh_provider_send_statusmail')) {
+            _os2web_esdh_provider_send_statusmail(t($message, $entries), TRUE);
+          }
+
           // Publication not published or public.
           $meetings[] = array(
             'system_id' => $agendainfo['sysid'],
@@ -137,6 +160,10 @@ function os2web_acadre_esdh_mm_import_meeting($meeting) {
  *   Meeting_struct array for an accepted import, else FALSE
  */
 function _os2web_acadre_esdh_import_meeting($info) {
+
+  // Debug bit set in os2web_esdh_provider settings.
+  $debug = variable_get('os2web_esdh_provider_debug_info');
+  $debug && error_log('MM Import - import meeting from XML - sysid=' . $info['sysid'] . ' - ' . timer_read('mm_import') . 'ms');
   if (($real_path = _os2web_acadre_esdh_similar_file_exists(drupal_realpath($info['agenda_uri']))) !== FALSE) {
     $xml = simplexml_load_file($real_path);
     $meeting = array(
@@ -220,15 +247,27 @@ function _os2web_acadre_esdh_import_meeting($info) {
  *   The imported item.
  */
 function _os2web_acadre_esdh_import_item($info, $xml) {
-  $id = (int) array_shift($xml->xpath("../fields/field[@name='sort']"));
-  $name = (string) array_shift($xml->xpath("fields/field[@name='name']"));
+  // Debug bit set in os2web_esdh_provider settings.
+  $debug = variable_get('os2web_esdh_provider_debug_info');
+
+  $xml_id = $xml->xpath("../fields/field[@name='sort']");
+  $xml_name = $xml->xpath("fields/field[@name='name']");
+  $xml_access = $xml->xpath("fields/field[@name='accessname']");
+
+  $id = (int) array_shift($xml_id);
+  $name = (string) array_shift($xml_name);
+  $access = (string) array_shift($xml_access);
+
   $item = array(
     'id' => $id,
     'title' => 'Punkt ' . $id . ' ' . $name,
-    'access' => (string) array_shift($xml->xpath("fields/field[@name='accessname']")),
+    'access' => $access,
     'bullets' => array(),
     'enclosures' => array(),
   );
+
+  $debug && error_log('MM Import - Import item from XML - id=' . $id . ' - ' . timer_read('mm_import') . 'ms');
+
   // Deny closed content.
   if ($item['access'] !== 'Lukket') {
     // Process attachments.
@@ -273,10 +312,18 @@ function _os2web_acadre_esdh_import_item($info, $xml) {
  *   The imported bullet.
  */
 function _os2web_acadre_esdh_import_bullet($info, $bullet_xml) {
+  // Debug bit set in os2web_esdh_provider settings.
+  $debug = variable_get('os2web_esdh_provider_debug_info');
+  $debug && error_log('MM Import - import bullet - ' . timer_read('mm_import') . 'ms');
+
+  $xml_title = $bullet_xml->xpath("fields/field[@name='bulletname']");
+  $xml_body = $bullet_xml->xpath("fields/field[@name='bulletcontent']");
+  $xml_sort = $bullet_xml->xpath("fields/field[@name='bulletsortorder']");
+
   $bullet = array(
-    'title' => (string) array_shift($bullet_xml->xpath("fields/field[@name='bulletname']")),
-    'body' => (string) array_shift($bullet_xml->xpath("fields/field[@name='bulletcontent']")),
-    'sort' => (int) array_shift($bullet_xml->xpath("fields/field[@name='bulletsortorder']")),
+    'title' => (string) array_shift($xml_title),
+    'body' => (string) array_shift($xml_body),
+    'sort' => (int) array_shift($xml_sort),
   );
   if ($bullet['body'] === '') {
     return FALSE;
@@ -315,7 +362,11 @@ function _os2web_acadre_esdh_mm_order_addenums($drush = FALSE) {
   if (!lock_acquire(__FUNCTION__)) {
     return;
   }
-  error_log('MARK - ' . basename(__FILE__) . ':' . __LINE__ . ' in ' . __FUNCTION__ . '()');
+
+  // Debug bit set in os2web_esdh_provider settings.
+  $debug = variable_get('os2web_esdh_provider_debug_info');
+
+  $debug && error_log('MARK - ' . basename(__FILE__) . ':' . __LINE__ . ' in ' . __FUNCTION__ . '()');
   $rev_meetings = array();
   // Find all meetings and gather meeting and agenda_ids.
   $nodes = entity_load('node', FALSE, array('type' => 'meeting'));
@@ -393,5 +444,6 @@ function _os2web_acadre_esdh_mm_order_addenums($drush = FALSE) {
       drush_log("Resetting $nid..", 'ok');
     }
   }
+  error_log('MARK - ' . basename(__FILE__) . ':' . __LINE__ . ' in ' . __FUNCTION__ . '()');
   lock_release(__FUNCTION__);
 }
