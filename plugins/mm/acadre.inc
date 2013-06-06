@@ -123,9 +123,10 @@ function os2web_acadre_esdh_mm_import_meeting($meeting) {
           }
         }
         else {
-          $message = 'Meeting !id, wasnt allowed to be published from xml !file. [publish]=!publish, [access]=!access, [filesfolder]=!filesfolder';
+          $message = 'Meeting !id, agenda !sub_id, wasnt allowed to be published from xml !file. [publish]=!publish, [access]=!access, [filesfolder]=!filesfolder';
           $entries = array(
             '!id' => $agenda_id,
+            '!sub_id' => (int) array_shift($xml_item->xpath('field/@sysid')),
             '!publish' => $agendainfo['publish'],
             '!access' => $agendainfo['access'],
             '!filesfolder' => $agendainfo['filesfolder'],
