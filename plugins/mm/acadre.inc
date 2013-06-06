@@ -411,7 +411,7 @@ function _os2web_acadre_esdh_mm_order_addenums($drush = FALSE) {
       node_delete($node->nid);
     }
     else {
-      $meetings[$meeting_id['value']][$meeting_sub_id['value']] = $node->nid;
+      $meetings[$meeting_id[0]['value']][$meeting_sub_id[0]['value']] = $node->nid;
     }
   }
 
