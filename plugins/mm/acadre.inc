@@ -401,7 +401,7 @@ function _os2web_acadre_esdh_mm_order_addenums($drush = FALSE) {
     }
     $meeting_id = field_get_items('node', $node, 'field_meeting_id');
     $meeting_sub_id = field_get_items('node', $node, 'field_meeting_sub_id');
-    if (!isset($meeting_id[0]['nid']) || !isset($meeting_sub_id[0]['nid'])) {
+    if (!isset($meeting_id[0]['value']) || !isset($meeting_sub_id[0]['value'])) {
       $debug && error_log('MM Import - Missing meeting_id or meeting_sub_id for nid=' . $node->nid);
       continue;
     }
