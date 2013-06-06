@@ -405,7 +405,7 @@ function _os2web_acadre_esdh_mm_order_addenums($drush = FALSE) {
       $debug && error_log('MM Import - Missing meeting_id or meeting_sub_id for nid=' . $node->nid);
       continue;
     }
-    if (isset($meetings[$meeting_id[LANGUAGE_NONE][0]['value']][$meeting_sub_id[LANGUAGE_NONE][0]['value']])) {
+    if (isset($meetings[$meeting_id[0]['value']][$meeting_sub_id[0]['value']])) {
       // Duplicate meeting detected.
       watchdog('acadre MM', 'Duplicate import found for meeting %mid. Deleting nid=%nid.', array('%mid' => $meeting_id['value'], '%nid' => $node->nid), WATCHDOG_WARNING);
       node_delete($node->nid);
