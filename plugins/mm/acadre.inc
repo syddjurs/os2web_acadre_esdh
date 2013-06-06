@@ -123,13 +123,13 @@ function os2web_acadre_esdh_mm_import_meeting($meeting) {
           }
         }
         else {
-          $message = 'Meeting %id, wasnt allowed to be published from xml %file. [publish]=%publish, [access]=%access, [filesfolder]=%filesfolder';
+          $message = 'Meeting !id, wasnt allowed to be published from xml !file. [publish]=!publish, [access]=!access, [filesfolder]=!filesfolder';
           $entries = array(
-            '%id' => $agenda_id,
-            '%publish' => $agendainfo['publish'],
-            '%access' => $agendainfo['access'],
-            '%filesfolder' => $agendainfo['filesfolder'],
-            '%file' => $file,
+            '!id' => $agenda_id,
+            '!publish' => $agendainfo['publish'],
+            '!access' => $agendainfo['access'],
+            '!filesfolder' => $agendainfo['filesfolder'],
+            '!file' => $file,
           );
           watchdog('acadre MM', $message, $entries, WATCHDOG_WARNING);
           if (function_exists('_os2web_esdh_provider_send_statusmail')) {
