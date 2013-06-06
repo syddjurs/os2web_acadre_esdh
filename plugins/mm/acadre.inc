@@ -366,26 +366,46 @@ function _os2web_acadre_esdh_mm_order_addenums($drush = FALSE) {
 
   // Debug bit set in os2web_esdh_provider settings.
   $debug = variable_get('os2web_esdh_provider_debug_info');
+  $debug && timer_start('_os2web_acadre_esdh_mm_order_addenums') && error_log('MM Import - Start of addendums - ' . timer_read('_os2web_acadre_esdh_mm_order_addenums') . 'ms');
 
-  $debug && error_log('MARK - ' . basename(__FILE__) . ':' . __LINE__ . ' in ' . __FUNCTION__ . '()');
   $rev_meetings = array();
+
   // Find all meetings and gather meeting and agenda_ids.
-  $nodes = entity_load('node', FALSE, array('type' => 'meeting'));
-  $meetings = array();
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node', '=')
+        ->propertyCondition('type', 'meeting', '=');
+  $nodes_result = $query->execute();
+
+  if (!isset($nodes_result['node'])) {
+    return;
+  }
+  $nodes = $nodes_result['node'];
+
+  // Load necessary fields into the node object.
+  $fields = field_info_instances('node', 'meeting');
+  field_attach_load('node', $nodes, FIELD_LOAD_CURRENT, array('field_id' => $fields['field_addenum_to']['field_id']));
+  field_attach_load('node', $nodes, FIELD_LOAD_CURRENT, array('field_id' => $fields['field_meeting_id']['field_id']));
+  field_attach_load('node', $nodes, FIELD_LOAD_CURRENT, array('field_id' => $fields['field_meeting_sub_id']['field_id']));
+
   // Meetings as: $meetings[<meeting_id>][<system_id>][<node_id>] .
-  $nids = array();
+  $meetings = array();
+
+  $nids_with_addendums = array();
+
+  $debug && error_log('MM Import - Retrieve nodes with addendums - ' . timer_read('_os2web_acadre_esdh_mm_order_addenums') . 'ms');
+  // Loop through all meeting nodes, and generate an array with meeting grouped.
   foreach ($nodes as $node) {
     $addenum_to = field_get_items('node', $node, 'field_addenum_to');
     if (isset($addenum_to[0]['nid']) && is_numeric($addenum_to[0]['nid'])) {
-      $nids[$node->nid] = $node->nid;
+      $nids_with_addendums[$node->nid] = $node->nid;
     }
-    $meeting_id = array_shift(field_get_items('node', $node, 'field_meeting_id'));
+    $meeting_id = field_get_items('node', $node, 'field_meeting_id');
     $meeting_sub_id = field_get_items('node', $node, 'field_meeting_sub_id');
-    if(empty($meeting_sub_id)){
+    if (!isset($meeting_id[0]['nid']) || !isset($meeting_sub_id[0]['nid'])) {
+      $debug && error_log('MM Import - Missing meeting_id or meeting_sub_id for nid=' . $node->nid);
       continue;
     }
-    $meeting_sub_id = array_shift($meeting_sub_id);
-    if (isset($meetings[$meeting_id['value']][$meeting_sub_id['value']])) {
+    if (isset($meetings[$meeting_id[LANGUAGE_NONE][0]['value']][$meeting_sub_id[LANGUAGE_NONE][0]['value']])) {
       // Duplicate meeting detected.
       watchdog('acadre MM', 'Duplicate import found for meeting %mid. Deleting nid=%nid.', array('%mid' => $meeting_id['value'], '%nid' => $node->nid), WATCHDOG_WARNING);
       node_delete($node->nid);
@@ -394,6 +414,9 @@ function _os2web_acadre_esdh_mm_order_addenums($drush = FALSE) {
       $meetings[$meeting_id['value']][$meeting_sub_id['value']] = $node->nid;
     }
   }
+
+  $debug && error_log('MM Import - Update addendums - ' . timer_read('_os2web_acadre_esdh_mm_order_addenums') . 'ms');
+  // Run through the meeting array, to determine the addendums.
   foreach ($meetings as $m_id => $meeting) {
     // Lowest system id first.
     ksort($meeting);
@@ -401,7 +424,7 @@ function _os2web_acadre_esdh_mm_order_addenums($drush = FALSE) {
       $meeting = array_reverse($meeting);
     }
     // Lowest system id is primary.
-    $primary = node_load(array_shift($meeting));
+    $primary = $nodes[array_shift($meeting)];
     $addenum_to = field_get_items('node', $primary, 'field_addenum_to');
     if (!empty($addenum_to[0]['nid'])) {
       $primary->field_addenum_to[LANGUAGE_NONE] = array();
@@ -426,7 +449,8 @@ function _os2web_acadre_esdh_mm_order_addenums($drush = FALSE) {
         error_log(basename(__FILE__) . ':' . __LINE__ . " jm@bellcom.dk: wanted to delete $node->nid");
         // node_delete($node->nid);
       }
-      unset($nids[$node->nid]);
+      // Remove node from final nids_with_addendums.
+      unset($nids_with_addendums[$node->nid]);
       if ($drush === TRUE) {
         if ($primary) {
           drush_log("Updated meeting $m_id..", 'ok');
@@ -437,14 +461,18 @@ function _os2web_acadre_esdh_mm_order_addenums($drush = FALSE) {
       }
     }
   }
-  foreach ($nids as $nid) {
-    $node = node_load($nid);
+
+  $debug && error_log('MM Import - Start reset addendums - ' . timer_read('_os2web_acadre_esdh_mm_order_addenums') . 'ms');
+  // Remove any addendums from nodes which hasnt been proccessed.
+  foreach ($nids_with_addendums as $nid) {
+    // Load the node from the local variable.
+    $node = $nodes[$nid];
     $node->field_addenum_to = array();
     node_save($node);
     if ($drush === TRUE) {
       drush_log("Resetting $nid..", 'ok');
     }
   }
-  error_log('MARK - ' . basename(__FILE__) . ':' . __LINE__ . ' in ' . __FUNCTION__ . '()');
+  $debug && error_log('MM Import - End of addendums - ' . timer_read('_os2web_acadre_esdh_mm_order_addenums') . 'ms');
   lock_release(__FUNCTION__);
 }
