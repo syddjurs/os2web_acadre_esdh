@@ -75,7 +75,7 @@ class AcadrePWS {
             $this->client = new SoapClient(NULL, $options);
           }
           catch (Exception $e) {
-            drupal_set_message('Error connecting to PWSv4 endpoint', 'error');
+            drupal_set_message(t('Error connecting to PWSv4 endpoint'), 'error');
             return FALSE;
           }
           if (function_exists('xdebug_enable')) {
@@ -108,7 +108,7 @@ class AcadrePWS {
             $this->client6 = new SoapClient($url . '?WSDL', $options);
           }
           catch (Exception $sf) {
-            drupal_set_message('Error connecting to PWSv6 endpoint', 'error');
+            drupal_set_message(t('Error connecting to PWSv6 endpoint'), 'error');
             return FALSE;
           }
           if (function_exists('xdebug_enable')) {
@@ -142,7 +142,7 @@ class AcadrePWS {
             return TRUE;
           }
           catch (SoapFault $sf) {
-            drupal_set_message('Error connecting to PWS document search service endpoint', 'error');
+            drupal_set_message(t('Error connecting to PWS document search service endpoint'), 'error');
             return FALSE;
           }
           if (function_exists('xdebug_enable')) {
@@ -544,11 +544,11 @@ class AcadrePWS {
               $result = file_create_url($result->uri);
             }
             else {
-              drupal_set_message('There was an error saving the file', 'error');
+              drupal_set_message(t('There was an error saving the file'), 'error');
             }
           }
           else {
-            drupal_set_message('There was an error creating the file', 'error');
+            drupal_set_message(t('There was an error creating the file'), 'error');
           }
         }
         else {
