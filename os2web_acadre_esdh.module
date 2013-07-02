@@ -126,17 +126,17 @@ function os2web_acadre_esdh_os2web_help($sections) {
 
   // Content types.
   $sections['configuration'] = t('<p>Configure PWS and resume import in the <a href="@url" target="_blank">OS2web Configuration</a><br /><i>This requires some insight in the server setup and the data recieved.</i><br />Setup the required endpoints, path to the published XML files from acadre and the authentication user/pass for accessing the PWS endpoints.</p>', array('@url' => url('admin/config/os2web/settings')));
-  $sections['configuration'] = t('<p><a href="@url" target="_blank">See the advanced documentation for acadre</a></p>', array('@url' => url('admin/help/os2web_acadre_esdh')));
+  $sections['configuration'] .= t('<p><a href="@url" target="_blank">See the advanced documentation for acadre</a></p>', array('@url' => url('admin/help/os2web_acadre_esdh')));
   return $sections;
 }
 
 /**
  * Implements hook_help().
  */
-function os2web_acadre_esdh_help($path, $arg) {
-  switch ($path) {
-    case 'admin/help#os2web_acadre_esdh':
+//function os2web_acadre_esdh_help($path, $arg) {
+//  switch ($path) {
+//    case 'admin/help#os2web_acadre_esdh':
       // TODO.
-      return t('Missing documentation.');
-  }
-}
+//      return t('Missing documentation.');
+//  }
+//}
