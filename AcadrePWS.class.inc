@@ -536,12 +536,20 @@ class AcadrePWS {
           $result = (string) array_shift($result->xpath('//soap:Body'))->XMLBinary;
           if (file_prepare_directory($dest, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
             $filename = (string) $ref . '-' . (string) $ver . '-' . $this->getDocFileName($ref, $ver);
-            $result = file_save_data(base64_decode($result), $dest . $filename, FILE_EXISTS_REPLACE);
-            if (FALSE != $result) {
+            if (isset($fid) && $fid > 0) {
+              $unm_file = file_unmanaged_save_data(base64_decode($result), $dest . $filename, FILE_EXISTS_REPLACE);
+              $file = file_load($fid);
+              $file->uri = $unm_file;
+              file_save($file);
+            }
+            else {
+              $file = file_save_data(base64_decode($result), $dest . $filename, FILE_EXISTS_REPLACE);
+            }
+            if (FALSE != $file) {
               if (drupal_load('module', 'os2web_adlib_api')) {
-                os2web_adlib_api_convert_to_pdf($result->fid, $ref);
+                os2web_adlib_api_convert_to_pdf($file->fid, $ref);
               }
-              $result = file_create_url($result->uri);
+              $result = file_create_url($file->uri);
             }
             else {
               drupal_set_message(t('There was an error saving the file'), 'error');
