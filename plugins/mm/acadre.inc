@@ -374,7 +374,7 @@ function _os2web_acadre_esdh_mm_order_addenums($drush = FALSE) {
   // Find all meetings and gather meeting and agenda_ids.
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', 'node', '=')
-        ->propertyCondition('type', 'meeting', '=');
+        ->propertyCondition('type', 'os2web_meetings_meeting', '=');
   $nodes_result = $query->execute();
 
   if (!isset($nodes_result['node'])) {
@@ -383,10 +383,10 @@ function _os2web_acadre_esdh_mm_order_addenums($drush = FALSE) {
   $nodes = $nodes_result['node'];
 
   // Load necessary fields into the node object.
-  $fields = field_info_instances('node', 'meeting');
-  field_attach_load('node', $nodes, FIELD_LOAD_CURRENT, array('field_id' => $fields['field_addenum_to']['field_id']));
-  field_attach_load('node', $nodes, FIELD_LOAD_CURRENT, array('field_id' => $fields['field_meeting_id']['field_id']));
-  field_attach_load('node', $nodes, FIELD_LOAD_CURRENT, array('field_id' => $fields['field_meeting_sub_id']['field_id']));
+  $fields = field_info_instances('node', 'os2web_meetings_meeting');
+  field_attach_load('node', $nodes, FIELD_LOAD_CURRENT, array('field_id' => $fields['field_os2web_meetings_addendum']['field_id']));
+  field_attach_load('node', $nodes, FIELD_LOAD_CURRENT, array('field_id' => $fields['field_os2web_meetings_id']['field_id']));
+  field_attach_load('node', $nodes, FIELD_LOAD_CURRENT, array('field_id' => $fields['field_os2web_meetings_sub_id']['field_id']));
 
   // Meetings as: $meetings[<meeting_id>][<system_id>][<node_id>] .
   $meetings = array();
@@ -396,12 +396,12 @@ function _os2web_acadre_esdh_mm_order_addenums($drush = FALSE) {
   $debug && error_log('MM Import - Retrieve nodes with addendums from ' . count($nodes) . ' nodes - ' . timer_read('_os2web_acadre_esdh_mm_order_addenums') . 'ms - ' . memory_get_usage());
   // Loop through all meeting nodes, and generate an array with meeting grouped.
   foreach ($nodes as $node) {
-    $addenum_to = field_get_items('node', $node, 'field_addenum_to');
+    $addenum_to = field_get_items('node', $node, 'field_os2web_meetings_addendum');
     if (isset($addenum_to[0]['nid']) && is_numeric($addenum_to[0]['nid'])) {
       $nids_with_addendums[$node->nid] = $node->nid;
     }
-    $meeting_id = field_get_items('node', $node, 'field_meeting_id');
-    $meeting_sub_id = field_get_items('node', $node, 'field_meeting_sub_id');
+    $meeting_id = field_get_items('node', $node, 'field_os2web_meetings_id');
+    $meeting_sub_id = field_get_items('node', $node, 'field_os2web_meetings_sub_id');
     if (!isset($meeting_id[0]['value']) || !isset($meeting_sub_id[0]['value'])) {
       $debug && error_log('MM Import - Missing meeting_id or meeting_sub_id for nid=' . $node->nid);
       continue;
@@ -426,22 +426,22 @@ function _os2web_acadre_esdh_mm_order_addenums($drush = FALSE) {
     }
     // Lowest system id is primary.
     $primary = $nodes[array_shift($meeting)];
-    $addenum_to = field_get_items('node', $primary, 'field_addenum_to');
+    $addenum_to = field_get_items('node', $primary, 'field_os2web_meetings_addendum');
     if (!empty($addenum_to[0]['nid'])) {
-      $primary->field_addenum_to[LANGUAGE_NONE] = array();
+      $primary->field_os2web_meetings_addendum[LANGUAGE_NONE] = array();
       node_save($primary);
     }
     while ($next = array_shift($meeting)) {
       // Set up references for addenum agendas.
       $node = $nodes[$next];
       if ($primary) {
-        $addenum_to = field_get_items('node', $node, 'field_addenum_to');
+        $addenum_to = field_get_items('node', $node, 'field_os2web_meetings_addendum');
         $addenum_to = is_array($addenum_to) ? array_shift(array_shift($addenum_to)) : FALSE;
         // Save time by only updating what is needed.
         if ($addenum_to != $primary->nid) {
           // error_log(basename(__FILE__) . ':' . __LINE__ . ' Var: $primary = ' . print_r($primary->nid, 1));
           // error_log(basename(__FILE__) . ':' . __LINE__ . ' Var: $addenum_to = ' . print_r($addenum_to, 1));
-          $node->field_addenum_to[LANGUAGE_NONE][0]['nid'] = $primary->nid;
+          $node->field_os2web_meetings_addendum[LANGUAGE_NONE][0]['nid'] = $primary->nid;
           node_save($node);
         }
       }
@@ -468,7 +468,7 @@ function _os2web_acadre_esdh_mm_order_addenums($drush = FALSE) {
   foreach ($nids_with_addendums as $nid) {
     // Load the node from the local variable.
     $node = $nodes[$nid];
-    $node->field_addenum_to = array();
+    $node->field_os2web_meetings_addendum = array();
     node_save($node);
     if ($drush === TRUE) {
       drush_log("Resetting $nid..", 'ok');
