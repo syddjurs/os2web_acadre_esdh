@@ -132,7 +132,7 @@ function ops2web_acadre_esdh_get_case_docs($case_id) {
     $case_id = ops2web_acadre_esdh_lookup_case($case_id);
   }
 
-  $docids = [];
+  $docids = array();
   if ($docs = $pws->getCaseDocs($case_id)) {
     foreach ($docs as $doc) {
       $docids[] = (int) $doc->Document->DocumentIdentifier;
