@@ -540,6 +540,7 @@ class AcadrePWS {
               $unm_file = file_unmanaged_save_data(base64_decode($result), $dest . $filename, FILE_EXISTS_REPLACE);
               $file = file_load($fid);
               $file->uri = $unm_file;
+              $file->filename = basename($unm_file);
               file_save($file);
             }
             else {
