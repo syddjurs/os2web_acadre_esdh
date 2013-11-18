@@ -298,10 +298,13 @@ class AcadrePWS {
       else {
         // Something is wrong, we are trying to use a string which is not XML.
         // This could be because of some error in Acadre.
+        $err_message = t('A malformed XML document was recieved from Acadre, doing an GetAllDocuments call.');
+
         // Use the mail sender in OS2web Settings to let an admin know.
         if (function_exists('_os2web_settings_send_error_email')) {
-          $err_message = t('A malformed XML document was recieved from Acadre, doing an GetAllDocuments call.');
-          _os2web_settings_send_error_email($err_message);
+          // Dont spam too much. Only send the error every 30 minutes.
+          _os2web_settings_send_error_email($err_message, 30);
+          }
         }
         throw new Exception($err_message);
       }
