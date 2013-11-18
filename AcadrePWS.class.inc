@@ -304,7 +304,6 @@ class AcadrePWS {
         if (function_exists('_os2web_settings_send_error_email')) {
           // Dont spam too much. Only send the error every 30 minutes.
           _os2web_settings_send_error_email($err_message, 30);
-          }
         }
         throw new Exception($err_message);
       }
