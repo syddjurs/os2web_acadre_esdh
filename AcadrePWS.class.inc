@@ -289,13 +289,24 @@ class AcadrePWS {
         }
       }
     }
+
     if (is_string($result)) {
-      $result = simplexml_load_string($result)->xpath('//soap:Body[1]/*/*');
+      $result = simplexml_load_string($result);
+      if(is_object($result)) {
+        return $result->xpath('//soap:Body[1]/*/*');
+      }
+      else {
+        // Something is wrong, we are trying to use a string which is not XML.
+        // This could be because of some error in Acadre.
+        // Use the mail sender in OS2web Settings to let an admin know.
+        if (function_exists('_os2web_settings_send_error_email')) {
+          $err_message = t('A malformed XML document was recieved from Acadre, doing an GetAllDocuments call.');
+          _os2web_settings_send_error_email($err_message);
+        }
+        throw new Exception($err_message);
+      }
     }
-    else {
-      return FALSE;
-    }
-    return $result;
+    return false;
   }
 
   /**
