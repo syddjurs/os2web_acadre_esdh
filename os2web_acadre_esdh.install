@@ -12,3 +12,34 @@ function os2web_acadre_esdh_uninstall() {
   variable_del('os2web_pws_proxy_host');
   variable_del('os2web_pws_proxy_port');
 }
+
+/**
+ * Implements hook_schema().
+ */
+function os2web_acadre_esdh_schema() {
+  $schema['os2web_acadre_esdh_cm_documents'] = array(
+    'description' => 'This table keep track of files from Acadre PWS which needs an create/update',
+    'fields' => array(
+      'id' => array(
+        'description' => 'The cm ID.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'defualt' => 0,
+      ),
+      'did' => array(
+        'description' => 'The document identifier from PWS.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+      ),
+      'job_info' => array(
+        'description' => 'Information object about the job.',
+        'type' => 'varchar',
+        'length' => 1024,
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+  return $schema;
+}

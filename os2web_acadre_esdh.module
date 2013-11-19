@@ -131,12 +131,101 @@ function os2web_acadre_esdh_os2web_help($sections) {
 }
 
 /**
- * Implements hook_help().
+ * Implements hook_node_save().
  */
-//function os2web_acadre_esdh_help($path, $arg) {
-//  switch ($path) {
-//    case 'admin/help#os2web_acadre_esdh':
-      // TODO.
-//      return t('Missing documentation.');
-//  }
-//}
+function os2web_acadre_esdh_node_save($node)
+{
+  // Check for correct api and required functions are implemented.
+  if (!os2web_esdh_provider_has_api('cm')) {
+    drupal_set_message(t('Error in case lookup API. Check status.'), 'error');
+    return '';
+  }
+  $wrapper = entity_metadata_wrapper('node', $node);
+
+  $cases = $wrapper->field_os2web_base_field_case->value();
+  $documents = array();
+  $documents = explode(',', $wrapper->field_os2web_base_field_doc->value());
+  foreach (explode(',', $cases) as $key => $case) {
+    try {
+      $case = os2web_esdh_provider_invoke('cm', 'get_case_data', $id);
+
+      if (!$case) {
+        // Ignore failed case lookups.
+        continue;
+      }
+
+      $access_grant = array(
+        'accesscode' => 'KK',
+        'restricted' => ACADRE_CM_ACCESS_OPEN_CASE,
+      );
+
+      if ($case['accesscode'] === $access_grant['accesscode'] &&
+          $case['restricted'] === $access_grant['restricted']) {
+        // Document has the appropiate access settings.
+        $documents = array_merge($documents, os2web_esdh_provider_invoke('cm', 'get_case_docs', $id));
+      }
+    } catch(Exception $e) {
+      watchdog('os2web_acadre_esdh', $e, NULL, WATCHDOG_ERROR); sd
+    }
+  }
+
+  if (count($documents)) {
+    $query = db_insert('os2web_acadre_esdh_cm_documents')->fields(array('did', 'job_info'));
+    foreach ($documents as $document_id) {
+      $query->values(array(
+        'did' => $document_id,
+        'job_info' => 'update'
+      ));
+    }
+    $query->execute();
+  }
+}
+
+
+/**
+ * Implements hook_cron().
+ */
+function os2web_acadre_esdh_cron() {
+
+  $queue = DrupalQueue::get('os2web_acadre_esdh_cm_doc_queue');
+
+  if ($queue->numberOfItems() == 0) {
+    $documents = db_select('os2web_acadre_esdh_cm_documents', 'd')
+      ->fields('d')
+      ->execute()
+      ->fetchAssoc();
+    $chunk_size = max(min((int) sqrt(count($documents)), 25), 1);
+    $documents = array_chunk($documents, $chunk_size);
+    foreach ($documents as $document) {
+      $queue->createItem($document);
+    }
+  }
+}
+
+/**
+ * Implements hook_cron_queue_info().
+ */
+function os2web_acadre_esdh_cron_queue_info() {
+  $queues['os2web_acadre_esdh_cm_doc_queue'] = array(
+    'worker callback' => '_os2web_acadre_esdh_update_document',
+  );
+  return $queues;
+}
+
+/**
+ * Cron worker function to update a document from Acadre PWS.
+ * @param  array $document
+ *   The document
+ */
+function _os2web_acadre_esdh_update_document($document) {
+  if (is_array($document)) {
+    foreach ($document as $d) {
+      _os2web_acadre_esdh_update_document($d);
+    }
+    return;
+  }
+
+  os2web_esdh_provider_invoke('cm', 'get_document_file', $document['id']);
+
+  db_delete('os2web_acadre_esdh_cm_documents', array('did' => $document['id']));
+}
