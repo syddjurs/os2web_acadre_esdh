@@ -133,8 +133,30 @@ function os2web_acadre_esdh_os2web_help($sections) {
 /**
  * Implements hook_node_save().
  */
-function os2web_acadre_esdh_node_save($node)
+function os2web_acadre_esdh_node_insert($node)
 {
+  if(!empty($node->field_os2web_base_field_case)) {
+    _os2web_acadre_esdh_update_cm_documents_from_pws($node);
+  }
+}
+
+/**
+ * Implements hook_node_save().
+ */
+function os2web_acadre_esdh_node_update($node)
+{
+  if(!empty($node->field_os2web_base_field_case)) {
+    _os2web_acadre_esdh_update_cm_documents_from_pws($node);
+  }
+}
+
+/**
+ * Helper function to call the PWS and put documents in queue for updates.
+ *
+ * @param  Object $node
+ *   The node.
+ */
+function _os2web_acadre_esdh_update_cm_documents_from_pws($node) {
   // Check for correct api and required functions are implemented.
   if (!os2web_esdh_provider_has_api('cm')) {
     drupal_set_message(t('Error in case lookup API. Check status.'), 'error');
@@ -180,7 +202,6 @@ function os2web_acadre_esdh_node_save($node)
     $query->execute();
   }
 }
-
 
 /**
  * Implements hook_cron().
