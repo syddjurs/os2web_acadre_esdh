@@ -43,3 +43,11 @@ function os2web_acadre_esdh_schema() {
   );
   return $schema;
 }
+
+/**
+ * Create new database table os2web_acadre_esdh_cm_documents.
+ */
+function os2web_acadre_esdh_update_7100() {
+  $schema = drupal_get_schema('os2web_acadre_esdh_cm_documents', TRUE);
+  db_create_table('os2web_acadre_esdh_cm_documents', $schema);
+}

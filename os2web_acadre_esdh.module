@@ -165,7 +165,7 @@ function os2web_acadre_esdh_node_save($node)
         $documents = array_merge($documents, os2web_esdh_provider_invoke('cm', 'get_case_docs', $id));
       }
     } catch(Exception $e) {
-      watchdog('os2web_acadre_esdh', $e, NULL, WATCHDOG_ERROR); sd
+      watchdog('os2web_acadre_esdh', $e, NULL, WATCHDOG_ERROR);
     }
   }
 
