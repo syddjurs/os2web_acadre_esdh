@@ -20,13 +20,6 @@ function os2web_acadre_esdh_schema() {
   $schema['os2web_acadre_esdh_cm_documents'] = array(
     'description' => 'This table keep track of files from Acadre PWS which needs an create/update',
     'fields' => array(
-      'id' => array(
-        'description' => 'The cm ID.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'defualt' => 0,
-      ),
       'did' => array(
         'description' => 'The document identifier from PWS.',
         'type' => 'int',
@@ -39,7 +32,6 @@ function os2web_acadre_esdh_schema() {
         'serialize' => TRUE,
       ),
     ),
-    'primary key' => array('id'),
   );
   return $schema;
 }
@@ -50,4 +42,14 @@ function os2web_acadre_esdh_schema() {
 function os2web_acadre_esdh_update_7100() {
   $schema = drupal_get_schema('os2web_acadre_esdh_cm_documents', TRUE);
   db_create_table('os2web_acadre_esdh_cm_documents', $schema);
+}
+
+
+/**
+ * Remove {id} in table os2web_acadre_esdh_cm_documents.
+ */
+function os2web_acadre_esdh_update_7101() {
+  if (db_field_exists('os2web_acadre_esdh_cm_documents', 'id')) {
+    db_drop_field('os2web_acadre_esdh_cm_documents', 'id');
+  }
 }

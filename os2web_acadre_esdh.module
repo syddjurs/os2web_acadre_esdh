@@ -131,7 +131,7 @@ function os2web_acadre_esdh_os2web_help($sections) {
 }
 
 /**
- * Implements hook_node_save().
+ * Implements hook_node_insert().
  */
 function os2web_acadre_esdh_node_insert($node)
 {
@@ -162,14 +162,13 @@ function _os2web_acadre_esdh_update_cm_documents_from_pws($node) {
     drupal_set_message(t('Error in case lookup API. Check status.'), 'error');
     return '';
   }
-  $wrapper = entity_metadata_wrapper('node', $node);
 
-  $cases = $wrapper->field_os2web_base_field_case->value();
+  $cases = explode(',', $node->field_os2web_base_field_case[LANGUAGE_NONE][0]['value']);
   $documents = array();
-  $documents = explode(',', $wrapper->field_os2web_base_field_doc->value());
-  foreach (explode(',', $cases) as $key => $case) {
+  $documents = explode(',', $node->field_os2web_base_field_doc[LANGUAGE_NONE][0]['value']);
+  foreach ($cases as $key => $case_id) {
     try {
-      $case = os2web_esdh_provider_invoke('cm', 'get_case_data', $id);
+      $case = os2web_esdh_provider_invoke('cm', 'get_case_data', $case_id);
 
       if (!$case) {
         // Ignore failed case lookups.
@@ -184,7 +183,7 @@ function _os2web_acadre_esdh_update_cm_documents_from_pws($node) {
       if ($case['accesscode'] === $access_grant['accesscode'] &&
           $case['restricted'] === $access_grant['restricted']) {
         // Document has the appropiate access settings.
-        $documents = array_merge($documents, os2web_esdh_provider_invoke('cm', 'get_case_docs', $id));
+        $documents = array_merge($documents, os2web_esdh_provider_invoke('cm', 'get_case_docs', $case_id));
       }
     } catch(Exception $e) {
       watchdog('os2web_acadre_esdh', $e, NULL, WATCHDOG_ERROR);
