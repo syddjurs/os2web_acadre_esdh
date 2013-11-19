@@ -141,7 +141,7 @@ function os2web_acadre_esdh_node_insert($node)
 }
 
 /**
- * Implements hook_node_save().
+ * Implements hook_node_update().
  */
 function os2web_acadre_esdh_node_update($node)
 {
