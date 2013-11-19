@@ -22,8 +22,10 @@ function os2web_acadre_esdh_schema() {
     'fields' => array(
       'did' => array(
         'description' => 'The document identifier from PWS.',
-        'type' => 'int',
+        'type' => 'varchar',
         'unsigned' => TRUE,
+        'length' => 256,
+        'not null' => TRUE,
       ),
       'job_info' => array(
         'description' => 'Information object about the job.',
