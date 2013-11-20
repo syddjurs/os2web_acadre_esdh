@@ -174,12 +174,12 @@ function _os2web_acadre_esdh_update_cm_documents_from_pws($node) {
       }
 
       $access_grant = array(
-        'accesscode' => 'KK',
-        'restricted' => ACADRE_CM_ACCESS_OPEN_CASE,
+        'access_code' => 'KK',
+        'restricted_from_public' => ACADRE_CM_ACCESS_OPEN_CASE,
       );
 
-      if ($case['accesscode'] === $access_grant['accesscode'] &&
-          $case['restricted'] === $access_grant['restricted']) {
+      if ($case['access_code'] === $access_grant['access_code'] &&
+          $case['restricted_from_public'] === $access_grant['restricted_from_public']) {
         // Document has the appropiate access settings.
         $documents = array_merge($documents, os2web_esdh_provider_invoke('cm', 'get_case_docs', $case_id));
       }
@@ -187,6 +187,8 @@ function _os2web_acadre_esdh_update_cm_documents_from_pws($node) {
       watchdog('os2web_acadre_esdh', $e, NULL, WATCHDOG_ERROR);
     }
   }
+
+  $documents = array_filter($documents);
 
   if (count($documents)) {
     $query = db_insert('os2web_acadre_esdh_cm_documents')->fields(array('did', 'job_info'));
