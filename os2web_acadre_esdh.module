@@ -159,8 +159,7 @@ function os2web_acadre_esdh_node_update($node)
 function _os2web_acadre_esdh_update_cm_documents_from_pws($node) {
   // Check for correct api and required functions are implemented.
   if (!os2web_esdh_provider_has_api('cm')) {
-    drupal_set_message(t('Error in case lookup API. Check status.'), 'error');
-    return '';
+    return;
   }
 
   $cases = explode(',', $node->field_os2web_base_field_case[LANGUAGE_NONE][0]['os2web_esdh_field_case_ident']);
