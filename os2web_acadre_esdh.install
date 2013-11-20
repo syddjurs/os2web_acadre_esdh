@@ -23,7 +23,6 @@ function os2web_acadre_esdh_schema() {
       'did' => array(
         'description' => 'The document identifier from PWS.',
         'type' => 'varchar',
-        'unsigned' => TRUE,
         'length' => 256,
         'not null' => TRUE,
       ),
