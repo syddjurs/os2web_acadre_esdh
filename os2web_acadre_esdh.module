@@ -264,19 +264,25 @@ function _os2web_acadre_esdh_update_document($document) {
     if (_os2web_esdh_field_doc_access($document['did'])) {
       // Only show public documents.
       if (($doc !== FALSE) && _os2web_esdh_field_case_access($doc['case_reference'])) {
-        $file = os2web_esdh_provider_invoke('cm', 'get_document_file', $document['did']);
+        $file_uri = os2web_esdh_provider_invoke('cm', 'get_document_file', $document['did']);
+        // Find the file in the file table.
+        $file = db_select('file_managed')
+          ->condition('uri', $file_uri)
+          ->execute()
+          ->fetchObject();
+        if (isset($file->fid)) {
+          db_update('os2web_acadre_esdh_cm_documents')
+            ->fields(array(
+              'fid' => $file->fid,
+              'job_info' => 'updated',
+              'last_updated' => date("Y-m-d H:i:s", time()),
+            ))
+            ->condition('did', $document['did'])
+            ->execute();
 
-        db_update('os2web_acadre_esdh_cm_documents')
-          ->fields(array(
-            'fid' => $file->fid,
-            'job_info' => 'updated',
-            'last_updated' => date("Y-m-d H:i:s", time()),
-          ))
-          ->condition('did', $document['did'])
-          ->execute();
-
-        watchdog('os2web_acadre_esdh', 'Document (did: %did, fid: %fid) was updated from Acadre.', array('%did' => $document['did'], '%fid' => $file->fid), WATCHDOG_INFO);
-        return TRUE;
+          watchdog('os2web_acadre_esdh', 'Document (did: %did, fid: %fid) was updated from Acadre.', array('%did' => $document['did'], '%fid' => $file->fid), WATCHDOG_INFO);
+          return TRUE;
+        }
       }
     }
     _os2web_acadre_esdh_delete_doc_by_did($document['did']);
