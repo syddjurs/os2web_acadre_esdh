@@ -212,8 +212,15 @@ function os2web_acadre_esdh_cron() {
   if ($queue->numberOfItems() == 0) {
     $query = db_select('os2web_acadre_esdh_cm_documents', 'd')->fields('d');
     $documents = $query->execute()->fetchAll(PDO::FETCH_ASSOC);
-    foreach ($documents as $document) {
-      $queue->createItem($document);
+
+    $chunk_size = max(min((int) sqrt(count($documents)), 25), 1);
+    $documents = array_chunk($documents, $chunk_size);
+
+    if (count($documents)) {
+      $documents = array_pop($documents);
+      foreach ($documents as $document) {
+        $queue->createItem($document);
+      }
     }
   }
 }
@@ -246,7 +253,7 @@ function _os2web_acadre_esdh_update_document($document) {
           ->condition('did', $document['did'])
           ->execute();
 
-        watchdog('os2web_acadre_esdh', 'Document (did: %did) was converted updated from Acadre.', array('%did' => $document['did']), WATCHDOG_INFO);
+        watchdog('os2web_acadre_esdh', 'Document (did: %did) was updated from Acadre.', array('%did' => $document['did']), WATCHDOG_INFO);
       }
     }
   }
