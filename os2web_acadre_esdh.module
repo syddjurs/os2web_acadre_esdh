@@ -162,8 +162,8 @@ function _os2web_acadre_esdh_update_cm_documents_from_pws($node) {
     return;
   }
 
-  $cases = explode(',', $node->field_os2web_base_field_case[LANGUAGE_NONE][0]['os2web_esdh_field_case_ident']);
-  $documents = explode(',', $node->field_os2web_base_field_doc[LANGUAGE_NONE][0]['os2web_esdh_field_doc_ident']);
+  $cases = explode(',', preg_replace('/\s+/', '', $node->field_os2web_base_field_case[LANGUAGE_NONE][0]['os2web_esdh_field_case_ident']));
+  $documents = explode(',', preg_replace('/\s+/', '', $node->field_os2web_base_field_doc[LANGUAGE_NONE][0]['os2web_esdh_field_doc_ident']));
   foreach ($cases as $key => $case_id) {
     try {
       $case = os2web_esdh_provider_invoke('cm', 'get_case_data', $case_id);
