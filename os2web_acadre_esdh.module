@@ -235,6 +235,10 @@ function _os2web_acadre_esdh_update_document($document) {
   if (isset($document['did'])) {
     os2web_esdh_provider_invoke('cm', 'get_document_file', $document['did']);
 
-    db_delete('os2web_acadre_esdh_cm_documents', array('did' => $document['did']));
+    db_delete('os2web_acadre_esdh_cm_documents')
+      ->condition('did', $document['did'])
+      ->execute();
+
+    watchdog('os2web_acadre_esdh', 'Document (did: %did) was converted updated from Acadre.', array('%did' => $document['did']), WATCHDOG_INFO);
   }
 }
