@@ -276,8 +276,10 @@ function _os2web_acadre_esdh_update_document($document) {
           ->execute();
 
         watchdog('os2web_acadre_esdh', 'Document (did: %did, fid: %fid) was updated from Acadre.', array('%did' => $document['did'], '%fid' => $file->fid), WATCHDOG_INFO);
+        return TRUE;
       }
     }
+    _os2web_acadre_esdh_delete_doc_by_did($document['did']);
   }
 }
 
@@ -311,4 +313,15 @@ function _os2web_acadre_esdh_get_doc_by_did($document_id) {
     ->fetchAssoc();
 
   return $doc_in_db;
+}
+
+/**
+ * Helper function to delete an document from out table.
+ *
+ * @param  [int] $document_id The document ID
+ */
+function _os2web_acadre_esdh_delete_doc_by_did($document_id) {
+  $doc_in_db = db_delete('os2web_acadre_esdh_cm_documents')
+    ->condition('did', $document_id)
+    ->execute();
 }
