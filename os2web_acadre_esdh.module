@@ -208,12 +208,8 @@ function os2web_acadre_esdh_cron() {
   $queue = DrupalQueue::get('os2web_acadre_esdh_cm_doc_queue');
 
   if ($queue->numberOfItems() == 0) {
-    $documents = db_select('os2web_acadre_esdh_cm_documents', 'd')
-      ->fields('d')
-      ->execute()
-      ->fetchAssoc();
-    $chunk_size = max(min((int) sqrt(count($documents)), 25), 1);
-    $documents = array_chunk($documents, $chunk_size);
+    $query = db_select('os2web_acadre_esdh_cm_documents', 'd')->fields('d');
+    $documents = $query->execute()->fetchAll(PDO::FETCH_ASSOC);
     foreach ($documents as $document) {
       $queue->createItem($document);
     }
@@ -236,14 +232,9 @@ function os2web_acadre_esdh_cron_queue_info() {
  *   The document
  */
 function _os2web_acadre_esdh_update_document($document) {
-  if (is_array($document)) {
-    foreach ($document as $d) {
-      _os2web_acadre_esdh_update_document($d);
-    }
-    return;
+  if (isset($document['did'])) {
+    os2web_esdh_provider_invoke('cm', 'get_document_file', $document['did']);
+
+    db_delete('os2web_acadre_esdh_cm_documents', array('did' => $document['did']));
   }
-
-  os2web_esdh_provider_invoke('cm', 'get_document_file', $document['did']);
-
-  db_delete('os2web_acadre_esdh_cm_documents', array('did' => $document['did']));
 }
