@@ -243,7 +243,7 @@ function _os2web_acadre_esdh_update_document($document) {
     return;
   }
 
-  os2web_esdh_provider_invoke('cm', 'get_document_file', $document['id']);
+  os2web_esdh_provider_invoke('cm', 'get_document_file', $document['did']);
 
-  db_delete('os2web_acadre_esdh_cm_documents', array('did' => $document['id']));
+  db_delete('os2web_acadre_esdh_cm_documents', array('did' => $document['did']));
 }
