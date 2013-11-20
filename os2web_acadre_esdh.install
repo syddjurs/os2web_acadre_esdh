@@ -68,8 +68,8 @@ function os2web_acadre_esdh_update_7101() {
 /**
  * Add {fid} field to os2web_acadre_esdh_cm_documents
  */
-function os2web_acadre_esdh_update_7102() {
-  if (db_field_exists('os2web_acadre_esdh_cm_documents', 'fid')) {
+function os2web_acadre_esdh_update_7103() {
+  if (!db_field_exists('os2web_acadre_esdh_cm_documents', 'fid')) {
     $spec = array(
       'description' => 'The file entry id.',
       'type' => 'int',
@@ -78,7 +78,7 @@ function os2web_acadre_esdh_update_7102() {
     );
     db_add_field( 'os2web_acadre_esdh_cm_documents', 'fid', $spec);
   }
-  if (db_field_exists('os2web_acadre_esdh_cm_documents', 'last_updated')) {
+  if (!db_field_exists('os2web_acadre_esdh_cm_documents', 'last_updated')) {
     $spec = array(
       'type' => 'datetime',
       'mysql_type' => 'datetime',
