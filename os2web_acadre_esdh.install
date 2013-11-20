@@ -18,8 +18,14 @@ function os2web_acadre_esdh_uninstall() {
  */
 function os2web_acadre_esdh_schema() {
   $schema['os2web_acadre_esdh_cm_documents'] = array(
-    'description' => 'This table keep track of files from Acadre PWS which needs an create/update',
+    'description' => 'This table keep track of files from Acadre PWS which needs to be created/updated',
     'fields' => array(
+      'fid' => array(
+        'description' => 'The file entry id.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'defualt' => NULL,
+      ),
       'did' => array(
         'description' => 'The document identifier from PWS.',
         'type' => 'varchar',
@@ -32,6 +38,10 @@ function os2web_acadre_esdh_schema() {
         'length' => 1024,
         'serialize' => TRUE,
       ),
+      'last_updated' => array(
+        'type' => 'datetime',
+        'mysql_type' => 'datetime',
+      )
     ),
   );
   return $schema;
@@ -52,5 +62,27 @@ function os2web_acadre_esdh_update_7100() {
 function os2web_acadre_esdh_update_7101() {
   if (db_field_exists('os2web_acadre_esdh_cm_documents', 'id')) {
     db_drop_field('os2web_acadre_esdh_cm_documents', 'id');
+  }
+}
+
+/**
+ * Add {fid} field to os2web_acadre_esdh_cm_documents
+ */
+function os2web_acadre_esdh_update_7102() {
+  if (db_field_exists('os2web_acadre_esdh_cm_documents', 'fid')) {
+    $spec = array(
+      'description' => 'The file entry id.',
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'defualt' => NULL,
+    );
+    db_add_field( 'os2web_acadre_esdh_cm_documents', 'fid', $spec);
+  }
+  if (db_field_exists('os2web_acadre_esdh_cm_documents', 'last_updated')) {
+    $spec = array(
+      'type' => 'datetime',
+      'mysql_type' => 'datetime',
+    );
+    db_add_field( 'os2web_acadre_esdh_cm_documents', 'last_updated', $spec);
   }
 }
