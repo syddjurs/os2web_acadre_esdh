@@ -520,7 +520,6 @@ class AcadrePWS {
       if (is_object($info)) {
         $updated = strtotime($info->ChangedDateTime);
         if ($updated < $ctime) {
-          $result = file_create_url($result->uri);
           return $result;
         }
       }
@@ -563,7 +562,7 @@ class AcadrePWS {
               if (drupal_load('module', 'os2web_adlib_api')) {
                 os2web_adlib_api_convert_to_pdf($file->fid, $ref);
               }
-              $result = file_create_url($file->uri);
+              return $file;
             }
             else {
               drupal_set_message(t('There was an error saving the file'), 'error');
