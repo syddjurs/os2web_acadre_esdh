@@ -429,32 +429,20 @@ class AcadrePWS {
    *   Documents meta
    */
   public function getDocuments($documents) {
-    $result = FALSE;
-    if (!empty($documents) && $this->getClient()) {
-
-      $request_document = '';
-      foreach ($documents as $document_id) {
-        $request_document .= sprintf('<acad:int>%s</acad:int>', $document_id);
+    $cid = __FUNCTION__ . $query;
+    $result = &drupal_static($cid, FALSE);
+    if ($result != FALSE) {
+      return $result;
+    }
+    elseif ($this->getClientSearch()) {
+      if (!is_array($documents)) {
+        $documents = array( $documents );
       }
-      $request = '<?xml version="1.0" encoding="utf-8"?>
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:acad="http://acadreextendedservice.syddjurs.dk/">
-   <soapenv:Header/>
-   <soapenv:Body>
-      <acad:GetDocuments>
-         <!--Optional:-->
-         <acad:DocumentIDs>
-            <!--Zero or more repetitions:-->
-            {$request_document}
-         </acad:DocumentIDs>
-      </acad:GetDocuments>
-   </soapenv:Body>
-</soapenv:Envelope>';
       try {
-        $result = $this->client->__doRequest($request, $this->client->location, $this->client->uri . 'GetDocuments', SOAP_1_1);
-        $result = (array) simplexml_load_string($result)->xpath('//soap:Body/GetDocumentsResult');
+        $result = $this->clientSearch->GetDocuments(array('DocumentIDs' => $documents))->GetDocumentsResult;
       }
       catch (SoapFault $sf) {
-        return FALSE;
+        $result = $sf;
       }
     }
     return $result;
