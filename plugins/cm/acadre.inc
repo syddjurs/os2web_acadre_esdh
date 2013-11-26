@@ -19,6 +19,7 @@ $plugin = array(
   'lookup_doc' => 'ops2web_acadre_esdh_lookup_doc',
   'lookup_case' => 'ops2web_acadre_esdh_lookup_case',
   'available' => 'ops2web_acadre_esdh_available',
+  'get_documents' => 'ops2web_acadre_esdh_get_documents',
 );
 
 /**
@@ -88,6 +89,34 @@ function ops2web_acadre_esdh_get_document($doc_id) {
   );
   $doc += os2web_esdh_provider_default_document();
   return $doc;
+}
+
+/**
+ * Returns all META data for te provided documents.
+ *
+ * @param array $document_ids
+ *   An array of document IDs.
+ *
+ * @return array
+ *   List of documents meta data.
+ */
+function ops2web_acadre_esdh_get_documents($document_ids) {
+  $pws = _ops2web_acadre_esdh_get_pws_instance();
+  $case_id = trim($case_id);
+  // Translate the SSSSSS/YY serial into database identifier.
+  foreach ($document_ids as &$doc_id) {
+    if (!is_numeric($doc_id)) {
+      $doc_id = ops2web_acadre_esdh_lookup_doc($doc_id);
+    }
+  }
+
+  // $docids = array();
+  $docs = $pws->getDocuments($document_ids);
+  //   foreach ($docs as $doc) {
+  //     $docids[] = (int) $doc->Document->DocumentIdentifier;
+  //   }
+  // }
+  return $docs;
 }
 
 /**
