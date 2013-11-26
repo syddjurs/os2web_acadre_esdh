@@ -110,12 +110,8 @@ function ops2web_acadre_esdh_get_documents($document_ids) {
     }
   }
 
-  // $docids = array();
-  $docs = $pws->getDocuments($document_ids);
-  //   foreach ($docs as $doc) {
-  //     $docids[] = (int) $doc->Document->DocumentIdentifier;
-  //   }
-  // }
+  $docs = $pws->getDocuments($document_ids)->Document;
+
   return $docs;
 }
 
