@@ -102,7 +102,6 @@ function ops2web_acadre_esdh_get_document($doc_id) {
  */
 function ops2web_acadre_esdh_get_documents($document_ids) {
   $pws = _ops2web_acadre_esdh_get_pws_instance();
-  $case_id = trim($case_id);
   // Translate the SSSSSS/YY serial into database identifier.
   foreach ($document_ids as &$doc_id) {
     if (!is_numeric($doc_id)) {
