@@ -549,7 +549,7 @@ class AcadrePWS {
       if (is_object($info)) {
         $updated = strtotime($info->ChangedDateTime);
         if ($updated < $ctime) {
-          return $file;
+          return $result;
         }
       }
     }
