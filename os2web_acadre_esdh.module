@@ -129,14 +129,3 @@ function os2web_acadre_esdh_os2web_help($sections) {
   $sections['configuration'] .= t('<p><a href="@url" target="_blank">See the advanced documentation for acadre</a></p>', array('@url' => url('admin/help/os2web_acadre_esdh')));
   return $sections;
 }
-
-/**
- * Implements hook_help().
- */
-//function os2web_acadre_esdh_help($path, $arg) {
-//  switch ($path) {
-//    case 'admin/help#os2web_acadre_esdh':
-      // TODO.
-//      return t('Missing documentation.');
-//  }
-//}
