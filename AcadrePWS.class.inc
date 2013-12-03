@@ -419,6 +419,35 @@ class AcadrePWS {
     return $result;
   }
 
+    /**
+   * Gets all meta for every document we send the IDs of.
+   *
+   * @param array $documents
+   *   Document IDs
+   *
+   * @return array
+   *   Documents meta
+   */
+  public function getDocuments($documents) {
+    $cid = __FUNCTION__ . $query;
+    $result = &drupal_static($cid, FALSE);
+    if ($result != FALSE) {
+      return $result;
+    }
+    elseif ($this->getClientSearch()) {
+      if (!is_array($documents)) {
+        $documents = array( $documents );
+      }
+      try {
+        $result = $this->clientSearch->GetDocuments(array('DocumentIDs' => $documents))->GetDocumentsResult;
+      }
+      catch (SoapFault $sf) {
+        $result = $sf;
+      }
+    }
+    return $result;
+  }
+
   /**
    * Returns the document reference and version.
    *
