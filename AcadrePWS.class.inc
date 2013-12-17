@@ -299,7 +299,9 @@ class AcadrePWS {
         // Something is wrong, we are trying to use a string which is not XML.
         // This could be because of some error in Acadre.
         $err_message = t('A malformed XML document was recieved from Acadre, doing an GetAllDocuments call.');
-
+        foreach(libxml_get_errors() as $error) {
+          $err_message .= "\n" . $error;
+        }
         // Use the mail sender in OS2web Settings to let an admin know.
         if (function_exists('_os2web_settings_send_error_email')) {
           // Dont spam too much. Only send the error every 30 minutes.
